@@ -8,6 +8,7 @@ port = 993
 # Username to login as
 username = ""
 # Password for the above username
+password = ""
 
 
 # Filter lambda for ignoring certain folders
