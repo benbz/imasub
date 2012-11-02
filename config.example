@@ -1,0 +1,20 @@
+# Example configuration file
+# Rename to config.py to use
+
+# Host of the IMAP server
+host = ""
+# Port to connect to on the IMAP server
+port = 993
+# Username to login as
+username = ""
+# Password for the above username
+
+
+# Filter lambda for ignoring certain folders
+
+# - Default filter - will not ignore any folders
+folderFilter = None
+
+# - Filter out all folders ending in YYYY-mm, YYYY or YYYYQq
+# import re
+#folderFilter = lambda folder: re.match(".*(\d{4})([^.]{0,3})$", folder) == None
