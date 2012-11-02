@@ -1,0 +1,89 @@
+#!/usr/bin/env python2.7
+
+from config import *
+import argparse
+import imaplib
+
+
+if folderFilter == None:
+	filterAllFoldersFunction = lambda folder: True
+else:
+	filterAllFoldersFunction = folderFilter
+
+
+def getFoldersList((responseStatus, responseData)):
+	folders = []
+	for data in responseData:
+		if data == None:
+			continue
+		folders.append(data.split('"')[-2])
+	return sorted(folders)
+
+def getSubscribedFolders(connection, searchString = "*"):
+	return getFoldersList(connection.lsub("", searchString))
+
+def searchFolders(connection, searchString = "*"):
+	subscribedFolders = getSubscribedFolders(connection, searchString)
+	allFolders = getFoldersList(connection.list("", searchString))
+
+	filteredAllFolders = filter(filterAllFoldersFunction, allFolders)
+	return [(folder, folder in subscribedFolders) for folder in filteredAllFolders]
+
+def printFolders(foldersAndSubscribedStatus):
+	for (folder, subscribedStatus) in foldersAndSubscribedStatus:
+		line = "- " + folder
+		if subscribedStatus:
+			line = line + " *"
+		print line
+
+def doCommand(connection, args):
+	if args.command == "list":
+		print "Listing all folders:"
+		printFolders(searchFolders(connection))
+
+	elif args.command == "list-subscribed":
+		print "Listing subscribed folders:"
+		printFolders([(folder, True) for folder in getSubscribedFolders(connection)])
+
+	elif args.command == "search":
+		if args.mailbox == None:
+			searchString = "*"
+		else:
+			searchString = "*" + args.mailbox + "*"
+
+		print "Searching for folders matching " + searchString + ":"
+		printFolders(searchFolders(connection, searchString))
+
+	elif args.command == "unsubscribe":
+		mailbox = args.mailbox
+		if mailbox == None:
+			print "You must enter a mailbox to unsubscribe from"
+			return
+
+		print "Attempting to unsubscribe from " + mailbox
+		print connection.unsubscribe(mailbox)
+	elif args.command == "subscribe":
+		mailbox = args.mailbox
+		if mailbox == None:
+			print "You must enter a mailbox to unsubscribe from"
+			return
+
+		print "Attempting to subscribe to " + mailbox
+		(status, response) = connection.subscribe(mailbox)
+		print response[0]
+
+def main():
+	connection = imaplib.IMAP4_SSL(host)
+	connection.login(username, password)
+
+	parser = argparse.ArgumentParser(description='Manage IMAP subscriptions.')
+	parser.add_argument('command', help='The operation to run - search, list, list-subscribed, subscribe, unsubscribe')
+	parser.add_argument('mailbox', nargs='?', help='The mailbox or mailbox search string for the command')
+
+	args = parser.parse_args()
+
+	doCommand(connection, args)
+	connection.shutdown()
+
+if __name__ == "__main__":
+    main()
