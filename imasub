@@ -83,7 +83,7 @@ def main():
 	args = parser.parse_args()
 
 	doCommand(connection, args)
-	connection.shutdown()
+	connection.logout()
 
 if __name__ == "__main__":
     main()
