@@ -7,7 +7,7 @@ the command line.
 To configure move config.example to config.py and enter your IMAP server
 details.
 
-    usage: imapsub.py [-h] command [mailbox]
+    usage: imasub [-h] command [mailbox]
     
     Manage IMAP subscriptions.
     
