@@ -31,9 +31,10 @@ def searchFolders(connection, searchString = "*"):
 
 def printFolders(foldersAndSubscribedStatus):
 	for (folder, subscribedStatus) in foldersAndSubscribedStatus:
-		line = "- " + folder
 		if subscribedStatus:
-			line = line + " *"
+			line = "*" + folder
+		else:
+			line = " " + folder
 		print line
 
 def doCommand(connection, args):
